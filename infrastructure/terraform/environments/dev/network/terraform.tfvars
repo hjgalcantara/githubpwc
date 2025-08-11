@@ -1,5 +1,5 @@
-project = "clas"
-client = "moe"
+project = "pantai"
+client = "ihh"
 environment = "dev"
 region = "southeastasia"
 owner = "hill.joseph.a.alcantara@pwccom"
