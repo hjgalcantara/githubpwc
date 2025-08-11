@@ -1,4 +1,4 @@
-name: Terraform Azure Pipeline (UAMI)
+name: Common-Terraform Steps
 
 on:
   workflow_dispatch:

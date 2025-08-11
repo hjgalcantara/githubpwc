@@ -1,4 +1,4 @@
-name: Terraform Azure Pipeline (Firewall - UAMI)
+name: 2. Firewall
 
 on:
   workflow_dispatch:

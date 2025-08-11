@@ -1,4 +1,4 @@
-name: Terraform Azure Pipeline (Network - UAMI)
+name: 1. Network Services
 
 on:
   workflow_dispatch:

@@ -1,4 +1,4 @@
-name: Terraform Azure Pipeline (UAMI)
+name: 3. Core Services
 
 on:
   workflow_dispatch:
