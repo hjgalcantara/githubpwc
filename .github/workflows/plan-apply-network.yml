@@ -1,0 +1,90 @@
+name: Terraform Azure Pipeline (Network - UAMI)
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_plan:
+        description: 'Run Terraform plan?'
+        required: true
+        default: 'true'
+      run_apply:
+        description: 'Run Terraform apply?'
+        required: true
+        default: 'false'
+
+env:
+  TF_VERSION: 1.12.0
+  WORKING_DIR: infrastructure/terraform/environments/dev/network
+  ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}       # UAMI Client ID
+  ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+  ARM_USE_AZUREAD: true
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  plan:
+    if: ${{ github.event.inputs.run_plan == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Azure Login with UAMI (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.ARM_CLIENT_ID }}
+          tenant-id: ${{ secrets.ARM_TENANT_ID }}
+          subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+
+      - name: Terraform Init
+        run: |
+          cd "${{ env.WORKING_DIR }}"
+          terraform init -backend-config=backend.tfvars
+
+      - name: Terraform Validate
+        run: |
+          cd "${{ env.WORKING_DIR }}"
+          terraform validate
+
+      - name: Terraform Plan
+        run: |
+          cd "${{ env.WORKING_DIR }}"
+          terraform plan -var-file="terraform.tfvars"
+
+  apply:
+    if: ${{ github.event.inputs.run_apply == 'true' }}
+    needs: plan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Azure Login with UAMI (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.ARM_CLIENT_ID }}
+          tenant-id: ${{ secrets.ARM_TENANT_ID }}
+          subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+
+      - name: Terraform Init
+        run: |
+          cd "${{ env.WORKING_DIR }}"
+          terraform init -backend-config=backend.tfvars
+
+      - name: Terraform Apply
+        run: |
+          cd "${{ env.WORKING_DIR }}"
+          terraform apply -auto-approve -var-file="terraform.tfvars"
