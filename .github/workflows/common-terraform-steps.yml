@@ -1,0 +1,67 @@
+name: Terraform Azure Pipeline (UAMI)
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Terraform action to perform (plan or apply)'
+        required: true
+        default: 'plan'
+      working_dir:
+        description: 'Terraform working directory'
+        required: true
+        default: './'
+
+env:
+  TF_VERSION: 1.9.0 # Adjust to your preferred Terraform version
+  ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}       # User Assigned Managed Identity Client ID
+  ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+  ARM_USE_AZUREAD: true
+
+permissions:
+  id-token: write   # Required for OIDC login
+  contents: read
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Azure Login with UAMI (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.ARM_CLIENT_ID }}
+          tenant-id: ${{ secrets.ARM_TENANT_ID }}
+          subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          allow-no-subscriptions: true  # Optional, in case of tenant-level auth
+
+      - name: Terraform Init
+        run: |
+          cd "${{ github.event.inputs.working_dir }}"
+          terraform init -backend-config=backend.tfvars
+
+      - name: Terraform Validate
+        if: ${{ github.event.inputs.action == 'plan' }}
+        run: |
+          cd "${{ github.event.inputs.working_dir }}"
+          terraform validate
+
+      - name: Terraform Plan
+        if: ${{ github.event.inputs.action == 'plan' }}
+        run: |
+          cd "${{ github.event.inputs.working_dir }}"
+          terraform plan -var-file="terraform.tfvars"
+
+      - name: Terraform Apply
+        if: ${{ github.event.inputs.action == 'apply' }}
+        run: |
+          cd "${{ github.event.inputs.working_dir }}"
+          terraform apply -auto-approve -var-file="terraform.tfvars"
