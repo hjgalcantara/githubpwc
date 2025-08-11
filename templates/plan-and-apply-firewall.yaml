@@ -1,0 +1,51 @@
+trigger:
+  branches:
+    exclude:
+      - main
+
+parameters:
+  - name: run_plan
+    displayName: 'Run Plan'
+    type: boolean
+    default: true
+  - name: run_apply
+    displayName: 'Run Apply'
+    type: boolean
+    default: false
+
+variables:
+  - group: vargroup-moeclas-d-tfstat
+  - name: TF_VERSION
+    value: '1.12.0'
+  - name: working_dir
+    value: 'infrastructure/terraform/environments/dev/firewall'
+
+stages:
+  - stage: plan
+    displayName: 'Terraform Plan'
+    condition: and(succeeded(), eq('${{ parameters.run_plan }}', true))
+    jobs:
+      - job: plan
+        displayName: 'Run Plan'
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - template: common/terraform-steps.yaml
+            parameters:
+              action: plan
+              working_dir: $(working_dir)
+
+  - stage: apply
+    displayName: 'Terraform Apply'
+    condition: and(succeeded(), eq('${{ parameters.run_apply }}', true))
+    dependsOn: plan
+    jobs:
+      - job: apply
+        displayName: 'Run Apply'
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - template: common/terraform-steps.yaml
+            parameters:
+              action: apply
+              working_dir: $(working_dir)
