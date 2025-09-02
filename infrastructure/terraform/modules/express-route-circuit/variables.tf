@@ -43,7 +43,7 @@ variable "express_route_circuits" {
 variable "express_route_peers" {
   description = "Map of ExpressRoute circuit private peerings"
   type = map(object({
-    circuit_key                = string # must match a key in var.express_route_circuits
+    circuit_key                   = string # must match a key in var.express_route_circuits
     primary_peer_address_prefix   = string
     secondary_peer_address_prefix = string
     vlan_id                       = number

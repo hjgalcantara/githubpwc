@@ -24,5 +24,5 @@ variable "bastions" {
 }
 
 variable "default_tags" {
-  
+
 }

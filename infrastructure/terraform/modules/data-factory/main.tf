@@ -1,9 +1,9 @@
 resource "azurerm_data_factory" "adf" {
-    for_each = var.data_factories
+  for_each = var.data_factories
 
-  name                = each.value.adf_name
-  location            = each.value.location
-  resource_group_name = each.value.resource_group_name
+  name                   = each.value.adf_name
+  location               = each.value.location
+  resource_group_name    = each.value.resource_group_name
   public_network_enabled = each.value.public_network_enabled
 
   identity {
@@ -14,11 +14,11 @@ resource "azurerm_data_factory" "adf" {
 }
 
 resource "azurerm_private_endpoint" "adf-private-endpoint" {
-    for_each = {
-        for k, df in var.data_factories :
-        k => df
-        if !df.public_network_enabled
-    }
+  for_each = {
+    for k, df in var.data_factories :
+    k => df
+    if !df.public_network_enabled
+  }
 
   name                = each.value.pep_adf_name
   resource_group_name = each.value.resource_group_name

@@ -1,15 +1,15 @@
 resource "azurerm_key_vault" "kv" {
   for_each = var.key_vaults
-  
-  name = each.value.key_vault_name
-  location = each.value.location
-  resource_group_name = each.value.resource_group_name
-  tenant_id = var.tenant_id
-  soft_delete_retention_days = each.value.soft_delete_retention_days
-  purge_protection_enabled = each.value.purge_protection_enabled
-  sku_name = "standard"
+
+  name                          = each.value.key_vault_name
+  location                      = each.value.location
+  resource_group_name           = each.value.resource_group_name
+  tenant_id                     = var.tenant_id
+  soft_delete_retention_days    = each.value.soft_delete_retention_days
+  purge_protection_enabled      = each.value.purge_protection_enabled
+  sku_name                      = "standard"
   public_network_access_enabled = each.value.public_network_access_enabled
-  enable_rbac_authorization = true
+  enable_rbac_authorization     = true
 
   tags = var.default_tags
 }

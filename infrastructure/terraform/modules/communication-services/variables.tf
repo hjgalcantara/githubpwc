@@ -1,7 +1,7 @@
 variable "default_tags" {
   description = "Default tags to apply to all resources"
   type        = map(string)
-  default     = {}  
+  default     = {}
 }
 
 variable "communication_services" {
@@ -9,8 +9,8 @@ variable "communication_services" {
   type = map(object({
     communication_service_name = string
     resource_group_name        = string
-    data_location                   = string
+    data_location              = string
   }))
   default = {}
-  
+
 }

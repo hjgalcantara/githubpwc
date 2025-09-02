@@ -27,26 +27,26 @@ variable "firewalls" {
 variable "firewall_policies" {
   description = "Map of firewall policy configurations"
   type = map(object({
-    name                   = string
-    location               = string
-    resource_group_name    = string
-    sku                    = string
+    name                     = string
+    location                 = string
+    resource_group_name      = string
+    sku                      = string
     threat_intelligence_mode = string
-    }))
-    default = {}
+  }))
+  default = {}
 }
 
 variable "rule_collection_groups" {
   description = "Map of rule collection group configurations"
   type = map(object({
-    policy_key  = string
-    name        = string
-    priority    = number
+    policy_key = string
+    name       = string
+    priority   = number
     application_rule_collections = optional(list(object({
       name     = string
       priority = number
       action   = string
-      rules    = list(object({
+      rules = list(object({
         name              = string
         protocol_type     = string
         protocol_port     = number
@@ -60,7 +60,7 @@ variable "rule_collection_groups" {
       name     = string
       priority = number
       action   = string
-      rules    = list(object({
+      rules = list(object({
         name                  = string
         protocols             = list(string)
         source_addresses      = list(string)
@@ -72,7 +72,7 @@ variable "rule_collection_groups" {
       name     = string
       priority = number
       action   = string
-      rules    = list(object({
+      rules = list(object({
         name                = string
         protocols           = list(string)
         source_addresses    = list(string)

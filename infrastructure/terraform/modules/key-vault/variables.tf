@@ -1,6 +1,6 @@
 variable "key_vaults" {
   description = "Map of key vaults to create"
-  type        = map(object({
+  type = map(object({
     key_vault_name                = string
     location                      = string
     resource_group_name           = string
@@ -9,7 +9,7 @@ variable "key_vaults" {
     public_network_access_enabled = bool
     pep_kv_name                   = string
   }))
-  default     = {} 
+  default = {}
 }
 
 variable "tenant_id" {
@@ -26,7 +26,7 @@ variable "default_tags" {
   description = "Default tags to apply to all resources"
   type        = map(string)
   default     = {}
-  
+
 }
 
 variable "private_dns_zone_kv_id" {

@@ -1,6 +1,6 @@
 output "bastion_names" {
   description = "Map of Bastion host names"
-  value       = { for key, bastion in azurerm_bastion_host.bas : key => bastion.name } 
+  value       = { for key, bastion in azurerm_bastion_host.bas : key => bastion.name }
 }
 
 output "bastion_ids" {
@@ -10,6 +10,6 @@ output "bastion_ids" {
 
 output "public_ip_ids" {
   description = "Map of public IP IDs"
-  value       = {
-     for key, pip in azurerm_public_ip.pip-bas : key => pip.id }
+  value = {
+  for key, pip in azurerm_public_ip.pip-bas : key => pip.id }
 }

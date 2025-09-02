@@ -12,12 +12,12 @@ resource "azurerm_public_ip" "pip-afw" {
 resource "azurerm_firewall_policy" "afwp" {
   for_each = var.firewall_policies
 
-  name                = each.value.name
-  resource_group_name = each.value.resource_group_name
-  location            = each.value.location
-  sku                 = each.value.sku
+  name                     = each.value.name
+  resource_group_name      = each.value.resource_group_name
+  location                 = each.value.location
+  sku                      = each.value.sku
   threat_intelligence_mode = each.value.threat_intelligence_mode
-  tags                = var.default_tags
+  tags                     = var.default_tags
 }
 
 resource "azurerm_firewall_policy_rule_collection_group" "afwp-rcg" {
@@ -34,11 +34,11 @@ resource "azurerm_firewall_policy_rule_collection_group" "afwp-rcg" {
       name     = application_rule_collection.value.name
       priority = application_rule_collection.value.priority
       action   = application_rule_collection.value.action
-      
+
       dynamic "rule" {
         for_each = application_rule_collection.value.rules
         content {
-          name             = rule.value.name
+          name = rule.value.name
           protocols {
             type = rule.value.protocol_type
             port = rule.value.protocol_port
@@ -59,7 +59,7 @@ resource "azurerm_firewall_policy_rule_collection_group" "afwp-rcg" {
       name     = network_rule_collection.value.name
       priority = network_rule_collection.value.priority
       action   = network_rule_collection.value.action
-      
+
       dynamic "rule" {
         for_each = network_rule_collection.value.rules
         content {
@@ -80,7 +80,7 @@ resource "azurerm_firewall_policy_rule_collection_group" "afwp-rcg" {
       name     = nat_rule_collection.value.name
       priority = nat_rule_collection.value.priority
       action   = nat_rule_collection.value.action
-      
+
       dynamic "rule" {
         for_each = nat_rule_collection.value.rules
         content {
@@ -117,5 +117,5 @@ resource "azurerm_firewall" "afw" {
       subnet_id            = ip.key == "0" ? each.value.subnet_id : null
     }
   }
-  depends_on = [ azurerm_public_ip.pip-afw, azurerm_firewall_policy.afwp ]
+  depends_on = [azurerm_public_ip.pip-afw, azurerm_firewall_policy.afwp]
 }
