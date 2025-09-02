@@ -1,3 +1,32 @@
+# Generate a random admin password per VM
+resource "random_password" "vm_admin_password" {
+  for_each         = var.virtual_machines
+  length           = 16
+  special          = true
+  min_special      = 1
+  min_numeric      = 1
+  min_upper        = 1
+  min_lower        = 1
+  override_special = "$%&-_+{}<>"
+}
+
+# Store VM admin login in Key Vault
+resource "azurerm_key_vault_secret" "vm_admin_login" {
+  for_each     = var.virtual_machines
+  name         = "auto-${each.key}-vm-admin-login"
+  value        = each.value.administrator_login
+  key_vault_id = each.value.key_vault_id
+}
+
+# Store VM admin password in Key Vault
+resource "azurerm_key_vault_secret" "vm_admin_password" {
+  for_each     = var.virtual_machines
+  name         = "auto-${each.key}-vm-admin-password"
+  value        = random_password.vm_admin_password[each.key].result
+  key_vault_id = each.value.key_vault_id
+}
+
+# Network Interface
 resource "azurerm_network_interface" "nic" {
   for_each = var.virtual_machines
 
@@ -14,6 +43,7 @@ resource "azurerm_network_interface" "nic" {
   tags = var.default_tags
 }
 
+# Windows VM
 resource "azurerm_windows_virtual_machine" "vm" {
   for_each = var.virtual_machines
 
@@ -21,8 +51,8 @@ resource "azurerm_windows_virtual_machine" "vm" {
   resource_group_name = each.value.resource_group_name
   location            = each.value.location
   size                = each.value.vm_size
-  admin_username      = each.value.admin_username
-  admin_password      = each.value.admin_password
+  admin_username      = azurerm_key_vault_secret.vm_admin_login[each.key].value
+  admin_password      = azurerm_key_vault_secret.vm_admin_password[each.key].value
 
   os_disk {
     caching              = each.value.os_disk_caching
@@ -45,7 +75,8 @@ resource "azurerm_windows_virtual_machine" "vm" {
   tags = var.default_tags
 }
 
-resource "azurerm_dev_test_global_vm_shutdown_schedule" "vm_shutdown_sched" {
+# Auto-shutdown schedule
+resource "azurerm_dev_test_global_vm_shutdown_schedule" "vm_shutdown_schedule" {
   for_each = var.virtual_machines
 
   virtual_machine_id = azurerm_windows_virtual_machine.vm[each.key].id
