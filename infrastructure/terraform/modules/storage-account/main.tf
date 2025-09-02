@@ -1,25 +1,25 @@
-resource "azurerm_storage_account" "st"   {
-    for_each = var.storage_accounts
+resource "azurerm_storage_account" "st" {
+  for_each = var.storage_accounts
 
-    name = each.value.st_name
-    resource_group_name = each.value.resource_group_name
-    location = each.value.location
-    account_kind = each.value.account_kind
-    account_tier = each.value.account_tier
-    account_replication_type = each.value.account_replication_type
-    public_network_access_enabled = each.value.public_network_access_enabled
-    is_hns_enabled = each.value.is_hns_enabled
+  name                          = each.value.st_name
+  resource_group_name           = each.value.resource_group_name
+  location                      = each.value.location
+  account_kind                  = each.value.account_kind
+  account_tier                  = each.value.account_tier
+  account_replication_type      = each.value.account_replication_type
+  public_network_access_enabled = each.value.public_network_access_enabled
+  is_hns_enabled                = each.value.is_hns_enabled
 
-    tags = var.default_tags
+  tags = var.default_tags
 }
 
 resource "azurerm_private_endpoint" "blob-private-endpoint" {
-  for_each = { 
-    for k, st in var.storage_accounts : 
-    k => st 
+  for_each = {
+    for k, st in var.storage_accounts :
+    k => st
     if !st.public_network_access_enabled
   }
-  
+
   name                = each.value.pep_st_blob_name
   resource_group_name = each.value.resource_group_name
   location            = each.value.location
@@ -43,9 +43,9 @@ resource "azurerm_private_endpoint" "blob-private-endpoint" {
 }
 
 resource "azurerm_private_endpoint" "dfs-private-endpoint" {
-  for_each = { 
-    for k, st in var.storage_accounts : 
-    k => st 
+  for_each = {
+    for k, st in var.storage_accounts :
+    k => st
     if !st.public_network_access_enabled
   }
 
